@@ -1,6 +1,6 @@
 <?php
 
-class Main 
+class Main
 {
 	public function __construct()
 	{
@@ -14,6 +14,6 @@ class Main
 
 	public function contact($id)
 	{
-		print_r('Main contact called with id: '. $id . ' and ');
+		print_r('Main contact called with id: '. $id);
 	}
 }

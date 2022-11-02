@@ -37,14 +37,24 @@ class Routes
 		$this->options = [];
 	}
 
-	public function get(string $url, ...$params) {
+	protected function registRoute(string $url, $method, $ctrl)
+	{
 		$r = [
 			'group' => $this->group,
 			'options' => $this->options,
 			'url' => $url,
-			'ctrl' => isset($params[0]) ? $params[0] : ''
+			'method' => $method,
+			'ctrl' => $ctrl
 		];
 		array_push($this->registered_routes, $r);
+	}
+
+	public function get(string $url, ...$params) {
+		$this->registRoute($url, 'GET', isset($params[0]) ? $params[0] : '');
+	}
+
+	public function post(string $url, ...$params) {
+		$this->registRoute($url, 'POST', isset($params[0]) ? $params[0] : '');
 	}
 
 	public function run()
@@ -59,7 +69,7 @@ class Routes
 				$_arrmainuri = explode('/', $this->main_uri);
 				$_totalparams  = count($_arrparams) - 1;
 				for($j=$_totalparams;$j>0;$j--) {
-					array_push($_params, $_arrmainuri[count($_arrmainuri)-$j]);
+					array_push($_params, urlencode($_arrmainuri[count($_arrmainuri)-$j]));
 				}
 
 				// rewrite url
@@ -72,7 +82,7 @@ class Routes
 					$_url .= $_arrparams[$i] != '' ? $_arrparams[$i] : '';
 				}
 			}
-			if ($_url == $this->main_uri) {
+			if ($_url == $this->main_uri && strtoupper($_SERVER["REQUEST_METHOD"]) == $v['method']) {
 				$_arrctrl = explode('::', $v['ctrl']);
 				if(isset($_arrctrl[0]) && isset($_arrctrl[1])) {
 					$_ctrl = $_arrctrl[0];
