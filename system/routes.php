@@ -49,9 +49,29 @@ class Routes
 
 	public function run()
 	{
+		$notfound = true;
 		for($i = 0; $i < count($this->registered_routes); $i++) {
 			$v = $this->registered_routes[$i];
 			$_url = $v['group'] == '/' ? $v['url'] : $v['group'].($v['url'] == '/' ? '' : $v['url']);
+			$_arrparams = explode('/:', $_url);
+			$_params = [];
+			if(count($_arrparams) > 1) {
+				$_arrmainuri = explode('/', $this->main_uri);
+				$_totalparams  = count($_arrparams) - 1;
+				for($j=$_totalparams;$j>0;$j--) {
+					array_push($_params, $_arrmainuri[count($_arrmainuri)-$j]);
+				}
+
+				// rewrite url
+				$this->main_uri = '';
+				$_url = '';
+				for($i=0;$i<(count($_arrmainuri)-$_totalparams);$i++) {
+					$this->main_uri .= $_arrmainuri[$i] != '' ? '/'.$_arrmainuri[$i] : '';
+				}
+				for($i=0;$i<(count($_arrparams)-$_totalparams);$i++) {
+					$_url .= $_arrparams[$i] != '' ? $_arrparams[$i] : '';
+				}
+			}
 			if ($_url == $this->main_uri) {
 				$_arrctrl = explode('::', $v['ctrl']);
 				if(isset($_arrctrl[0]) && isset($_arrctrl[1])) {
@@ -63,7 +83,18 @@ class Routes
 						require_once $filedir;
 						$clsname = strtoupper(substr($_ctrl, 0,1)).substr($_ctrl, 1);
 						$cls = new $clsname();
-						$cls->$_func();
+						$notfound = false;
+						if(count($_params) == 1) {
+							$cls->$_func($_params[0]);
+						} else if(count($_params) == 2) {
+							$cls->$_func($_params[0], $_params[1]);
+						} else if(count($_params) == 3) {
+							$cls->$_func($_params[0], $_params[1], $_params[2]);
+						} else if(count($_params) == 4) {
+							$cls->$_func($_params[0], $_params[1], $_params[2], $_params[3]);
+						} else {
+							$cls->$_func();
+						}
 					} else {
 						throw new Exception("Controller or method is not found!");
 					}
@@ -71,5 +102,6 @@ class Routes
 				break;
 			}
 		}
+		if($notfound) throw new Exception("Path is not found");
 	}
 }

@@ -12,8 +12,8 @@ class Main
 		print_r('Main index called');
 	}
 
-	public function contact()
+	public function contact($id)
 	{
-		print_r('Main contact called');
+		print_r('Main contact called with id: '. $id . ' and ');
 	}
 }

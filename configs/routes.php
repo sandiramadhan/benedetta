@@ -6,7 +6,7 @@ $routes = new Routes();
 
 $routes->group('/', ['middleware' => 'auth'], function($routes) {
 	$routes->get('/', 'main::index');
-	$routes->get('/contact', 'main::contact');
+	$routes->get('/contact/:id', 'main::contact');
 });
 
 $routes->group('/profile', ['middleware' => 'auth'], function($routes) {

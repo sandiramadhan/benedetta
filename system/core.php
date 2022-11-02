@@ -3,7 +3,7 @@
 require_once __DIR__ . './../configs/database.php';
 require_once __DIR__ . './../configs/routes.php';
 
-class Jcore {
+class Bcore {
 
 	protected $registeredDb = [];
 	public function __construct()
