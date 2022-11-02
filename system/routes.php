@@ -32,6 +32,9 @@ class Routes
 		if (is_callable($callback)) {
 			$callback($this);
 		}
+
+		$this->group = null;
+		$this->options = [];
 	}
 
 	public function get(string $url, ...$params) {
@@ -46,7 +49,27 @@ class Routes
 
 	public function run()
 	{
-		echo "<pre>";
-		print_r($this->registered_routes);
+		for($i = 0; $i < count($this->registered_routes); $i++) {
+			$v = $this->registered_routes[$i];
+			$_url = $v['group'] == '/' ? $v['url'] : $v['group'].($v['url'] == '/' ? '' : $v['url']);
+			if ($_url == $this->main_uri) {
+				$_arrctrl = explode('::', $v['ctrl']);
+				if(isset($_arrctrl[0]) && isset($_arrctrl[1])) {
+					$_ctrl = $_arrctrl[0];
+					$_func = $_arrctrl[1];
+					
+					$filedir = __DIR__ . '/../controllers/'.$_ctrl.'.php';
+					if (file_exists($filedir)) {
+						require_once $filedir;
+						$clsname = strtoupper(substr($_ctrl, 0,1)).substr($_ctrl, 1);
+						$cls = new $clsname();
+						$cls->$_func();
+					} else {
+						throw new Exception("Controller or method is not found!");
+					}
+				}
+				break;
+			}
+		}
 	}
 }
